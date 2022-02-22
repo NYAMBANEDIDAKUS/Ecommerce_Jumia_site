@@ -2,6 +2,7 @@ package mainHandler;
 
 import com.aventstack.extentreports.ExtentReports;
 import com.aventstack.extentreports.ExtentTest;
+import com.aventstack.extentreports.Status;
 import com.aventstack.extentreports.markuputils.ExtentColor;
 import com.aventstack.extentreports.markuputils.Markup;
 import com.aventstack.extentreports.markuputils.MarkupHelper;
@@ -24,8 +25,7 @@ public class Handler {
 
     public ExtentHtmlReporter htmlReporter;
     public static ExtentReports extentReports;
-    public static ExtentTest extentTest;
-    public static ITestResult iTestResult;
+    public static ExtentTest logger;
     public static String logText;
     public static String methodName;
     public  static  Markup markup;
@@ -46,13 +46,13 @@ public class Handler {
     @BeforeMethod
     @Parameters(value = {"browserName"})
     public static void beforeMethodMethod(String browserName, Method testMethod) {
-        extentTest = extentReports.createTest(testMethod.getName());
+        logger = extentReports.createTest(testMethod.getName());
         setUpDrivers(browserName);
         if (browserName.equalsIgnoreCase("chrome")) {
             DesiredCapabilities desiredCapabilities = new DesiredCapabilities();
             desiredCapabilities.setAcceptInsecureCerts(true);
             ChromeOptions options = new ChromeOptions();
-            options.addArguments("start-maximized");
+            options.addArguments("start-minimized");
             options.merge(desiredCapabilities);
             driver.get(Constants.URL);
         }
@@ -60,15 +60,17 @@ public class Handler {
     }
 
     @AfterMethod
-    public static void beforeMethodMethod() {
+    public static void afterMethodMethod(ITestResult iTestResult) {
         if (iTestResult.getStatus() == ITestResult.SUCCESS) {
             methodName = iTestResult.getMethod().getMethodName();
-            logText = "Test Case" + methodName + "Passed";
+            logText = "Test Case : " + methodName + " Passed";
             markup = MarkupHelper.createLabel(logText, ExtentColor.GREEN);
+            logger.log(Status.PASS, markup);
         } else if (iTestResult.getStatus() == ITestResult.FAILURE) {
             methodName = iTestResult.getMethod().getMethodName();
-            logText = "Text Case" + methodName + "Failed";
+            logText = "Test Case : " + methodName + " Failed";
             markup = MarkupHelper.createLabel(logText, ExtentColor.RED);
+            logger.log(Status.FAIL, markup);
 
         }
         driver.quit();
@@ -76,6 +78,7 @@ public class Handler {
 
     @AfterTest
     public static void afterTestMethod() {
+
         extentReports.flush();
     }
 
