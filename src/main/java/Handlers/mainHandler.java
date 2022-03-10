@@ -1,4 +1,4 @@
-package mainHandler;
+package Handlers;
 
 import com.aventstack.extentreports.ExtentReports;
 import com.aventstack.extentreports.ExtentTest;
@@ -17,10 +17,10 @@ import org.testng.ITestResult;
 import org.testng.annotations.*;
 import utils.Constants;
 
-import java.io.File;
 import java.lang.reflect.Method;
+import java.util.concurrent.TimeUnit;
 
-public class Handler {
+public class mainHandler {
     public static WebDriver driver;
 
     public ExtentHtmlReporter htmlReporter;
@@ -32,7 +32,7 @@ public class Handler {
 
     @BeforeTest
     public  void beforeTestMethod() {
-        htmlReporter = new ExtentHtmlReporter(System.getProperty("user.dir") + File.separator + "reports" + File.separator + "Jumia_test_reports.html");
+        htmlReporter = new ExtentHtmlReporter(Constants.REPORT_SORE);
         htmlReporter.config().setEncoding("utf-8");
         htmlReporter.config().setDocumentTitle("Jumia Automation Report");
         htmlReporter.config().setReportName("automation test results");
@@ -45,22 +45,25 @@ public class Handler {
 
     @BeforeMethod
     @Parameters(value = {"browserName"})
-    public static void beforeMethodMethod(String browserName, Method testMethod) {
+    public  void beforeMethodMethod(String browserName, Method testMethod) {
+        SettingsHandler.getSettings(Constants.CONFIGURATION_FILEPATH);
         logger = extentReports.createTest(testMethod.getName());
         setUpDrivers(browserName);
-        if (browserName.equalsIgnoreCase("chrome")) {
+      if (browserName.equalsIgnoreCase("chrome")) {
             DesiredCapabilities desiredCapabilities = new DesiredCapabilities();
             desiredCapabilities.setAcceptInsecureCerts(true);
+            desiredCapabilities.setCapability("applicationCacheEnabled", false);
             ChromeOptions options = new ChromeOptions();
             options.addArguments("start-minimized");
             options.merge(desiredCapabilities);
-            driver.get(Constants.URL);
+            driver.get("https://jumia.co.ke");
+
         }
 
     }
 
     @AfterMethod
-    public static void afterMethodMethod(ITestResult iTestResult) {
+    public void afterMethodMethod(ITestResult iTestResult) {
         if (iTestResult.getStatus() == ITestResult.SUCCESS) {
             methodName = iTestResult.getMethod().getMethodName();
             logText = "Test Case : " + methodName + " Passed";
@@ -73,22 +76,28 @@ public class Handler {
             logger.log(Status.FAIL, markup);
 
         }
-        driver.quit();
+
+     //  driver.quit();
     }
 
     @AfterTest
-    public static void afterTestMethod() {
+    public  void afterTestMethod() {
 
         extentReports.flush();
     }
 
-    public static void setUpDrivers(String browserName) {
+    public WebDriver setUpDrivers(String browserName) {
         if (browserName.equalsIgnoreCase("chrome")) {
-            System.setProperty("webdriver.chrome.driver", System.getProperty("user.dir") + File.separator + "drivers" + File.separator + "chromedriver.exe");
+            System.setProperty("webdriver.chrome.driver", Constants.CHROME_DRIVERS);
             driver = new ChromeDriver();
+            driver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
+            driver.manage().window().maximize();
         } else if (browserName.equalsIgnoreCase("firefox")) {
-            System.setProperty("webdriver.gecko.driver", System.getProperty("user.dir") + File.separator + "drivers" + File.separator + "gecko.exe");
+            System.setProperty("webdriver.gecko.driver", Constants.FIREFOX_DRIVER);
             driver = new FirefoxDriver();
+
         }
+
+        return driver;
     }
 }

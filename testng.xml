@@ -1,10 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
 <suite name="All Test Suite">
-    <listeners>
-        <listener class-name="utils.TextCaseListener"></listener>
-    </listeners>
-    <test  name="ecommerce_automation_framework">
+    <test name="ecommerce_automation_framework">
         <parameter name="browserName" value="chrome"/>
         <classes>
             <class name="JumiaEndToEndTest"/>

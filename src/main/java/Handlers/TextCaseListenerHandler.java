@@ -1,6 +1,5 @@
-package utils;
+package Handlers;
 
-import mainHandler.Handler;
 import org.apache.commons.io.FileUtils;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
@@ -15,7 +14,7 @@ import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
-public class TextCaseListener implements ITestListener, IAnnotationTransformer {
+public class TextCaseListenerHandler implements ITestListener, IAnnotationTransformer {
     @Override
     public void onTestStart(ITestResult result) {
 
@@ -29,7 +28,7 @@ public class TextCaseListener implements ITestListener, IAnnotationTransformer {
     @Override
     public void onTestFailure(ITestResult result) {
        String fileName = System.getProperty("user.dir" + File.separator, "screenshots" + File.separator + result.getMethod().getMethodName());
-       File screenshot = ((TakesScreenshot) Handler.driver).getScreenshotAs(OutputType.FILE);
+       File screenshot = ((TakesScreenshot) mainHandler.driver).getScreenshotAs(OutputType.FILE);
         try {
             FileUtils.copyFile(screenshot, new File(fileName + ".png"));
         } catch (IOException e) {
